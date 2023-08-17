@@ -1,9 +1,8 @@
 package service
 
-import (
-	"context"
-)
+import "i-view-jagaad-2023/model"
 
 type UserService interface {
-	FetchUsersFromProviders(ctx context.Context) error
+	FetchUsersFromProviders() error
+	GetUserByTags(tags []string) ([]model.User, error)
 }
