@@ -8,6 +8,7 @@ import (
 	"i-view-jagaad-2023/model"
 	"i-view-jagaad-2023/repository"
 	"os"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -65,7 +66,7 @@ func (r *File) SaveUsers(users []model.User) error {
 
 		friends, err := json.Marshal(user.Friends)
 		if err != nil {
-			log.Errorf("Error marshal friends for user GUID %s, with %s", user.GUID, err)
+			log.Errorf("Error marshal friends for user GUID %s, with %s", user.GUID, err.Error())
 			return errors.New(model.ErrorInternalService)
 		}
 
@@ -89,5 +90,62 @@ func (r *File) SaveUsers(users []model.User) error {
 
 func (r *File) GetUsers() ([]model.User, error) {
 
-	return nil, nil
+	// opening up file
+	file, err := os.Open(r.Filename)
+	if err != nil {
+		log.Errorf("Error open, err: %s", err.Error())
+		return nil, errors.New(model.ErrorInternalService)
+	}
+	defer file.Close()
+
+	// setting up writer
+	reader := csv.NewReader(file)
+
+	// read all from csv
+	rows, err := reader.ReadAll()
+	if err != nil {
+		log.Errorf("Error read, err: %s", err.Error())
+		return nil, errors.New(model.ErrorInternalService)
+	}
+
+	// read data, discard header
+	users := make([]model.User, 0)
+	for _, col := range rows[1:] {
+		if len(col) != 7 {
+			log.Errorf("Error number column not match, malformed data")
+			return nil, errors.New(model.ErrorInternalService)
+		}
+
+		index, err := strconv.Atoi(col[1])
+		if err != nil {
+			log.Errorf("Error convert index to integer, err: %s", err.Error())
+			return nil, errors.New(model.ErrorInternalService)
+		}
+
+		isActive := false
+		if col[3] == "true" {
+			isActive = true
+		}
+
+		tags := strings.Split(col[5], ", ")
+
+		var friends []model.Friend
+		err = json.Unmarshal([]byte(col[6]), &friends)
+		if err != nil {
+			log.Errorf("Error unmarshal friends for user GUID %s, with %s", col[2], err.Error())
+			return nil, errors.New(model.ErrorInternalService)
+		}
+
+		users = append(users, model.User{
+			ID:       col[0],
+			Index:    uint32(index),
+			GUID:     col[2],
+			IsActive: isActive,
+			Balance:  col[4],
+			Tags:     tags,
+			Friends:  friends,
+		})
+	}
+
+	return users, nil
 }

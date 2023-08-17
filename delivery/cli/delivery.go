@@ -2,6 +2,7 @@ package cli
 
 import (
 	"i-view-jagaad-2023/service"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -38,9 +39,14 @@ func (d *Cli) Start() {
 		Use:   "get-users",
 		Short: "Search users by tags",
 		Run: func(cmd *cobra.Command, args []string) {
-			tags, err := cmd.Flags().GetStringArray("tag")
+			tagsStrArr, err := cmd.Flags().GetStringArray("tag")
 			if err != nil {
 				log.Errorf("Error cannot get tags flag, err: %s", err.Error())
+			}
+
+			tags := make([]string, 0)
+			for _, tagsStr := range tagsStrArr {
+				tags = append(tags, strings.Split(tagsStr, ",")...)
 			}
 
 			d.UserService.GetUserByTags(tags)

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"i-view-jagaad-2023/model"
 	"i-view-jagaad-2023/repository"
 	"i-view-jagaad-2023/service"
@@ -36,6 +37,36 @@ func (s *User) FetchUsersFromProviders() error {
 	return err
 }
 
-func (s *User) GetUserByTags(tags []string) ([]model.User, error) {
+func (s *User) GetUserByTags(inputTags []string) ([]model.User, error) {
+	users, _ := s.FileRepo.GetUsers()
+
+	selectedUsers := make([]model.User, 0)
+	for _, user := range users {
+		userTagMap := make(map[string]bool)
+		for _, userTag := range user.Tags {
+			userTagMap[userTag] = true
+		}
+
+		allTagExist := true
+		if len(inputTags) == 0 {
+			allTagExist = false
+		}
+		for _, inputTag := range inputTags {
+			fmt.Println("---> inputTag", inputTag)
+			if _, exist := userTagMap[inputTag]; !exist {
+				allTagExist = false
+				break
+			}
+		}
+
+		if allTagExist {
+			selectedUsers = append(selectedUsers, user)
+		}
+	}
+
+	for _, selectedUser := range selectedUsers {
+		fmt.Println("selectedUser", selectedUser)
+	}
+
 	return nil, nil
 }
