@@ -52,7 +52,6 @@ func (s *User) GetUserByTags(inputTags []string) ([]model.User, error) {
 			allTagExist = false
 		}
 		for _, inputTag := range inputTags {
-			fmt.Println("---> inputTag", inputTag)
 			if _, exist := userTagMap[inputTag]; !exist {
 				allTagExist = false
 				break
@@ -64,8 +63,10 @@ func (s *User) GetUserByTags(inputTags []string) ([]model.User, error) {
 		}
 	}
 
+	fmt.Printf("%-40s | %-10s\n", "GUID", "Balance")
+	fmt.Printf("-----------------------------------------+-----------\n")
 	for _, selectedUser := range selectedUsers {
-		fmt.Println("selectedUser", selectedUser)
+		fmt.Printf("%-40s | %-10s\n", selectedUser.GUID, selectedUser.Balance)
 	}
 
 	return nil, nil
