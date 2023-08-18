@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"i-view-jagaad-2023/service"
 	"strings"
 
@@ -49,7 +50,16 @@ func (d *Cli) Start() {
 				tags = append(tags, strings.Split(tagsStr, ",")...)
 			}
 
-			d.UserService.GetUserByTags(tags)
+			users, err := d.UserService.GetUserByTags(tags)
+			if err != nil {
+				log.Errorf("Error cannot GetUserByTags, err: %s", err.Error())
+			}
+
+			fmt.Printf("%-40s | %-10s\n", "GUID", "Balance")
+			fmt.Printf("-----------------------------------------+-----------\n")
+			for _, user := range users {
+				fmt.Printf("%-40s | %-10s\n", user.GUID, user.Balance)
+			}
 		},
 	}
 	rootCmd.AddCommand(getUsersCmd)

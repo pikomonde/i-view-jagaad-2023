@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"i-view-jagaad-2023/model"
 	"i-view-jagaad-2023/repository"
 	"i-view-jagaad-2023/service"
@@ -63,11 +62,5 @@ func (s *User) GetUserByTags(inputTags []string) ([]model.User, error) {
 		}
 	}
 
-	fmt.Printf("%-40s | %-10s\n", "GUID", "Balance")
-	fmt.Printf("-----------------------------------------+-----------\n")
-	for _, selectedUser := range selectedUsers {
-		fmt.Printf("%-40s | %-10s\n", selectedUser.GUID, selectedUser.Balance)
-	}
-
-	return nil, nil
+	return selectedUsers, nil
 }
